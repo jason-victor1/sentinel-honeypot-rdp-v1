@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Local environment / secrets
+.env
+.env.*
+*.key
+*.pem
+*.pfx
+*.cer
+
+# Remote desktop / local connection files
+*.rdp
+
+# Logs / exported evidence artifacts
+*.log
+*.jsonl
+*.csv
+
+# Azure local artifacts
+.azure/
