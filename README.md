@@ -18,12 +18,38 @@ This is a learning lab, not a production deployment. The VM is intentionally int
 ## Architecture
 
 ```mermaid
-flowchart LR
-    A[Internet scanners / RDP brute-force attempts] -->|TCP/3389| B[Windows VM Honeypot]
-    B -->|Security Event ID 4625| C[Azure Monitor Agent]
-    C -->|Windows Security Events via AMA| D[Log Analytics Workspace]
-    D -->|SecurityEvent table| E[Microsoft Sentinel]
-    E -->|KQL geo enrichment| F[Workbook World Map]
+flowchart TD
+    subgraph Internet["Internet"]
+        A["Scanners / bots<br/>RDP brute-force attempts"]
+    end
+
+    subgraph AzureNetwork["Azure Network Boundary"]
+        B["NSG<br/>Allow TCP/3389 only"]
+        C["Windows VM Honeypot"]
+    end
+
+    subgraph Telemetry["Telemetry Collection"]
+        D["Windows Security Log<br/>Event ID 4625"]
+        E["Azure Monitor Agent"]
+        F["Windows Security Events<br/>via AMA"]
+    end
+
+    subgraph SIEM["Microsoft Sentinel / Log Analytics"]
+        G["Log Analytics Workspace"]
+        H["SecurityEvent table"]
+        I["KQL geo enrichment<br/>geo_info_from_ip_address()"]
+        J["Sentinel Workbook<br/>World Map"]
+    end
+
+    A -->|"TCP/3389"| B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+    I --> J
 ```
 
 ## Key design decisions
