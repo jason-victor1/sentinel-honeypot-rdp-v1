@@ -16,6 +16,11 @@
 *.log
 *.jsonl
 *.csv
+*.evtx
 
 # Azure local artifacts
 .azure/
+
+# IDE/editor
+.vscode/
+.idea/

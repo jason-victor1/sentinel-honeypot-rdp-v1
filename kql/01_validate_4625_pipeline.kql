@@ -1,0 +1,4 @@
+SecurityEvent
+| where TimeGenerated > ago(30m)
+| where EventID == 4625
+| take 50

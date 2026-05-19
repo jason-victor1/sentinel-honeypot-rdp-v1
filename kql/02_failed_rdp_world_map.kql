@@ -1,0 +1,13 @@
+SecurityEvent
+| where TimeGenerated > ago(24h)
+| where EventID == 4625
+| extend SourceIp = tostring(column_ifexists("IpAddress", ""))
+| where SourceIp !in ("", "-", "127.0.0.1", "::1")
+| extend geo = geo_info_from_ip_address(SourceIp)
+| extend
+    Latitude = todouble(geo.latitude),
+    Longitude = todouble(geo.longitude),
+    Country = tostring(geo.country)
+| where isnotempty(Latitude) and isnotempty(Longitude)
+| summarize event_count = count() by SourceIp, Country, Latitude, Longitude
+| order by event_count desc

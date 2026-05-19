@@ -1,0 +1,10 @@
+SecurityEvent
+| where TimeGenerated > ago(24h)
+| where EventID == 4625
+| extend AttemptedUser = coalesce(
+    tostring(column_ifexists("TargetUserName", "")),
+    tostring(column_ifexists("Account", ""))
+)
+| where isnotempty(AttemptedUser)
+| summarize attempts = count() by AttemptedUser
+| order by attempts desc
