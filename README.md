@@ -52,6 +52,51 @@ flowchart TD
     I --> J
 ```
 
+## Lab Execution Status
+
+The Sentinel RDP honeypot lab was successfully deployed, validated, and safely stopped after evidence capture.
+
+Current status:
+
+| Component                | Status                                                                       |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| Resource group           | Retained temporarily for documentation and cleanup validation                |
+| VM                       | Stopped/deallocated after telemetry validation                               |
+| Network exposure         | TCP/3389 was intentionally exposed for a controlled, timeboxed honeypot test |
+| Azure Monitor Agent      | Installed successfully on the Windows VM                                     |
+| Data Collection Rule     | Configured for Windows Security Events via AMA                               |
+| Microsoft Sentinel       | Enabled on the Log Analytics workspace                                       |
+| SecurityEvent ingestion  | Confirmed                                                                    |
+| Event ID 4625 validation | Confirmed failed logon events captured                                       |
+| Sentinel workbook        | Created and saved                                                            |
+| Cleanup                  | Pending final documentation review                                           |
+
+The VM `vm-honeypot-rdp-v1` was stopped and deallocated after successful validation of the telemetry pipeline. This confirms that the lab was not left running unnecessarily after the required evidence was collected.
+
+Validated telemetry path:
+
+```text
+Failed RDP authentication attempt
+→ Windows Security Event Log
+→ Azure Monitor Agent
+→ Data Collection Rule
+→ Log Analytics Workspace
+→ Microsoft Sentinel
+→ SecurityEvent table
+→ Sentinel workbook
+```
+
+Key validation evidence captured:
+
+- Azure Monitor Agent installed on the VM
+- Windows Security Events via AMA configured
+- `SecurityEvent` table receiving logs
+- Event ID `4625` failed logon events visible in Sentinel
+- Sentinel workbook created for failed RDP logon investigation
+- VM stopped/deallocated after evidence capture
+
+Sensitive values such as public IP addresses, source IP addresses, subscription IDs, and account names were redacted from public-facing evidence.
+
 ## Key design decisions
 
 This V1 intentionally avoids the older tutorial pattern of:
@@ -73,15 +118,15 @@ Instead, this version uses:
 
 ## Guardrails
 
-| Area | Control |
-|---|---|
-| Network exposure | TCP/3389 only |
-| Host firewall | Keep Windows Defender Firewall ON |
-| Isolation | Dedicated resource group, VNet, subnet, and no peering |
-| Cost | Budget alerts, short run window, minimal event collection |
-| Runtime | 1–4 hour timebox |
-| Cleanup | Delete the resource group after evidence capture |
-| Secrets | No API keys or credentials committed to repo |
+| Area             | Control                                                   |
+| ---------------- | --------------------------------------------------------- |
+| Network exposure | TCP/3389 only                                             |
+| Host firewall    | Keep Windows Defender Firewall ON                         |
+| Isolation        | Dedicated resource group, VNet, subnet, and no peering    |
+| Cost             | Budget alerts, short run window, minimal event collection |
+| Runtime          | 1–4 hour timebox                                          |
+| Cleanup          | Delete the resource group after evidence capture          |
+| Secrets          | No API keys or credentials committed to repo              |
 
 ## Build phases
 
@@ -103,13 +148,13 @@ Instead, this version uses:
 
 KQL files are stored in `/kql`:
 
-| File | Purpose |
-|---|---|
-| `00_schema_discovery.kql` | Inspect available columns |
+| File                            | Purpose                         |
+| ------------------------------- | ------------------------------- |
+| `00_schema_discovery.kql`       | Inspect available columns       |
 | `01_validate_4625_pipeline.kql` | Validate failed logon ingestion |
-| `02_failed_rdp_world_map.kql` | Build workbook map dataset |
-| `03_top_usernames.kql` | Identify attempted usernames |
-| `04_top_source_ips.kql` | Identify top source IPs |
+| `02_failed_rdp_world_map.kql`   | Build workbook map dataset      |
+| `03_top_usernames.kql`          | Identify attempted usernames    |
+| `04_top_source_ips.kql`         | Identify top source IPs         |
 
 ## Evidence checklist
 
