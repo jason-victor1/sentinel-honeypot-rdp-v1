@@ -24,3 +24,11 @@
 # IDE/editor
 .vscode/
 .idea/
+
+# Local/raw evidence that may contain sensitive values
+evidence/raw/
+evidence/unsanitized/
+
+# Local/raw evidence that may contain sensitive values
+evidence/raw/
+evidence/unsanitized/
